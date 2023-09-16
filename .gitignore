@@ -3,3 +3,4 @@ node_modules/
 buid/
 output/
 config.js
+.csv

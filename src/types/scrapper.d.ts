@@ -1,5 +1,7 @@
 import { Page } from "puppeteer";
 
+type ScrapperType = "default" | "crawler"
+
 type ScrapperResult = {
   checkName: string;
   result: string;
@@ -8,14 +10,24 @@ type ScrapperResult = {
 
 type ScrapperOption = {
   outDir: string;
-  configFileRoute: string;
+  config: string;
   hasElement: string;
   hasFunction: string;
-  timoutMiliseconds: number
+  timoutMiliseconds: number;
+  crawlURL: string;
 };
 
+type CrawlerOptions = {
+  baseURL: string;
+  outDir: string;
+  timoutMiliseconds: number;
+}
+
 type Config = {
-  interceptedRequests: { name: string; url: string }[];
+  exclude_hosts: string[];
+  exclude_text: string[];
+  block_request: string[];
+  interceptedRequests: { name: string; url: string | RegExp }[];
   scripts: {
     [key: string]: (
       page: Page,

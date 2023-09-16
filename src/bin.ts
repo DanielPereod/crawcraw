@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
 import { program } from "commander";
-import { Scrap } from "./commands/scrap";
+import { Scrapper } from "./commands/scrap";
 import os from "os";
-import { startCrawler } from "./commands/crawl";
-import { ScrapperOption } from "./types/scrapper";
 
 program
   .name("crawcraw")
@@ -13,32 +11,21 @@ program
 
 program
   .command("scrape")
-  .argument("<urlsCSVRoute>", "URLs csv route")
-  .option(
-    "--outDir <outDir>",
-    `Output data path (default: ${os.homedir()}/output.csv)`,
-    `${os.homedir()}/output.csv`
-  )
-  .option("--config <configFileRoute>", "Use a config file", "./config.js")
-  .option("--hasElement <hasElement>", "Search if element exists in page")
-  .option("--hasRequest <hasRequest>", "Search if request is made on page")
-
+  .argument("<baseURLs>", "URLs csv route or starting URL if crawling")
+  .option("-od, --outDir <outDir>",`Output data path (default: ${os.homedir()}/output.csv)`,`${os.homedir()}/output.csv`)
+  .option("-c, --config <configFileRoute>", "Use a config file")
+  .option("-he, --hasElement <hasElement>", "Search if element exists in page")
+  .option("-hr, --hasRequest <hasRequest>", "Search if request is made on page")
+  .option("-to, --timeout <timoutMiliseconds>", "Set the default timeout for puppeteer in miliseconds (default: 2000)")
+  .option("-cw, --crawl", "URL to start crawling")
   .description("Scrape a website using Puppeteer")
-  .action(async (urlsCSVRoute, options: ScrapperOption) => {
-    const scrap = new Scrap(options);
-    await scrap.scrap(urlsCSVRoute);
-  });
-
-program
-  .command("crawl")
-  .argument("<base_url>", "URL to start crawling")
-  .option("--outDir <outDir>", `Output data path (default: ${os.homedir()}/crawler_urls.csv)`, `${os.homedir()}/crawler_urls.csv`)
-  .option("--timeout <timoutMiliseconds>", "Set the default timeout for puppeteer in miliseconds (default: 2000)")
-  .description("Crawl a website using Puppeteer")
-  .action(async (base_url, options) => {
-    await startCrawler(base_url, options.outDir).catch((error) =>
-      console.error("Error:", error)
-    );
+  .action(async (baseURLs, options) => {
+    const scrapper = new Scrapper(options);
+    if (options.crawl) {
+      await scrapper.start(baseURLs, "crawler");
+    } else {
+      await scrapper.start(baseURLs, "default");
+    }
   });
 
 program

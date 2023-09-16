@@ -7,32 +7,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const scrap_1 = require("./commands/scrap");
 const os_1 = __importDefault(require("os"));
-const crawl_1 = require("./commands/crawl");
 commander_1.program
     .name("crawcraw")
     .description("CLI to some JavaScript string utilities")
     .version("0.8.0");
 commander_1.program
     .command("scrape")
-    .argument("<urlsCSVRoute>", "URLs csv route")
-    /*  .argument("[configFileRoute]", "Config file route (optional)", "./config.js") */
-    .option("--outDir <outDir>", `Output data path (default: ${os_1.default.homedir()}/output.csv)`, `${os_1.default.homedir()}/output.csv`)
-    .option("--config <configFileRoute>", "Use a config file", "./config.js")
-    .option("--hasElement <hasElement>", "Search if element exists in page")
-    .option("--hasRequest <hasRequest>", "Search if request is made on page")
+    .argument("<baseURLs>", "URLs csv route or starting URL if crawling")
+    .option("-od, --outDir <outDir>", `Output data path (default: ${os_1.default.homedir()}/output.csv)`, `${os_1.default.homedir()}/output.csv`)
+    .option("-c, --config <configFileRoute>", "Use a config file")
+    .option("-he, --hasElement <hasElement>", "Search if element exists in page")
+    .option("-hr, --hasRequest <hasRequest>", "Search if request is made on page")
+    .option("-to, --timeout <timoutMiliseconds>", "Set the default timeout for puppeteer in miliseconds (default: 2000)")
+    .option("-cw, --crawl", "URL to start crawling")
     .description("Scrape a website using Puppeteer")
-    .action(async (urlsCSVRoute, options) => {
-    const scrap = new scrap_1.Scrap(options);
-    await scrap.scrap(urlsCSVRoute);
+    .action(async (baseURLs, options) => {
+    const scrapper = new scrap_1.Scrapper(options);
+    if (options.crawl) {
+        await scrapper.start(baseURLs, "crawler");
+    }
+    else {
+        await scrapper.start(baseURLs, "default");
+    }
 });
 commander_1.program
-    .command("crawl")
-    .argument("<base_url>", "URL to start crawling")
-    .option("--outDir <outDir>", `Output data path (default: ${os_1.default.homedir()}/crawler_urls.csv)`, `${os_1.default.homedir()}/crawler_urls.csv`)
-    .description("Crawl a website using Puppeteer")
-    .action(async (base_url, options) => {
-    await (0, crawl_1.startCrawler)(base_url, options.outDir).catch((error) => console.error("Error:", error));
-});
+    .command("generate-config")
+    .argument("<outDir", "Where the config is stored")
+    .argument("<fileName>", "File name")
+    .action(async () => { });
 commander_1.program
     .command("test")
     .option("--test <arg1>")

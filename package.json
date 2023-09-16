@@ -1,0 +1,31 @@
+{
+  "name": "crawcraw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/binc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "ts-node ./src/bin"
+  },
+  "bin": {
+    "crawcraw": "build/bin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-spinners": "^2.9.1",
+    "commander": "^11.0.0",
+    "crawler": "^1.4.0",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "ora": "^5.4.1",
+    "puppeteer": "^21.2.0"
+  },
+  "devDependencies": {
+    "@types/ora": "^3.2.0",
+    "ts-node": "^10.9.1"
+  }
+}

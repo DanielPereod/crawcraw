@@ -1,0 +1,5 @@
+node_modules/
+.vscode
+buid/
+output/
+config.js

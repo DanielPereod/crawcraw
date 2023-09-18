@@ -14,7 +14,7 @@ commander_1.program
 commander_1.program
     .command("scrape")
     .argument("<baseURLs>", "URLs csv route or starting URL if crawling")
-    .option("-od, --outDir <outDir>", `Output data path (default: ${os_1.default.homedir()}/output.csv)`, `${os_1.default.homedir()}/output.csv`)
+    .option("-o, --outDir <outDir>", `Output data path (default: ${os_1.default.homedir()}/output.csv)`, `${os_1.default.homedir()}/output.csv`)
     .option("-c, --config <configFileRoute>", "Use a config file")
     .option("-he, --hasElement <hasElement>", "Search if element exists in page")
     .option("-hr, --hasRequest <hasRequest>", "Search if request is made on page")

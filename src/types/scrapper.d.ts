@@ -28,6 +28,7 @@ type Config = {
   exclude_text: string[];
   block_request: string[];
   interceptedRequests: { name: string; url: string | RegExp }[];
+  include_domains: RegExp
   scripts: {
     [key: string]: (
       page: Page,

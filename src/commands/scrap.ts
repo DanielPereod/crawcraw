@@ -71,7 +71,7 @@ export class Scrapper {
       const script = this.config.scripts[scriptsNames[i]];
       const result = await script(this.page, scriptsNames[i]);
       this.spinner.text += ` | ${chalk.blue.bold(result.checkName)}:${chalk[
-        result.result ? "green" : "red"
+        result.result === "OK" ? "green" : "red"
       ].bold(result.result)}`;
 
       this.scrapedData.push([url, result.checkName, result.result, result.data]);
@@ -147,7 +147,7 @@ export class Scrapper {
 
   private async crawl(url: string) {
     if (!url || this.visitedSet.has(url)) return;
-
+    
     this.spinner.text = `${chalk.bgMagenta.bold(` ${"Navigating"} `)} ${url}`;
 
     try {
@@ -184,17 +184,18 @@ export class Scrapper {
             continue;
 
           if (
-            //TODO: FIX THIS
-            urlString.includes("some_text") || //Include multidomain
+            (this.config?.include_domains && this.config?.include_domains.test(new URL(urlString, url).host)) || //Include multidomain
             urlString.startsWith("/") ||
             urlString.startsWith(url)
           ) {
-            const generatedURL = new URL(urlString, url).href.split("#")[0];
+            const generatedURL = new URL(urlString, url);
 
-            this.urlsSet.add(generatedURL);
+            const finalURL = generatedURL.protocol + "//" +  generatedURL.host + generatedURL.pathname; //TODO: FIX THIS allow to chosing if user want params or not
 
-            if (!this.visitedSet.has(generatedURL)) {
-              this.urlQueue.enqueue(generatedURL);
+            this.urlsSet.add(finalURL);
+
+            if (!this.visitedSet.has(finalURL)) {
+              this.urlQueue.enqueue(finalURL);
             }
           }
         } catch (error) {

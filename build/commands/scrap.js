@@ -41,7 +41,6 @@ class Scrapper {
         this.urlsSet = new Set();
         this.visitedSet = new Set();
         this.urlQueue = new Queue_1.Queue();
-        this.capturedRequests = [];
         this.spinner = (0, ora_1.default)("Starting to scrap");
         this.options = options;
     }
@@ -54,19 +53,8 @@ class Scrapper {
         await this.page.setRequestInterception(true);
         await this.page.setCacheEnabled(false);
         this.page.on("request", (request) => {
-            var _a, _b, _c;
-            if (this.capturedRequests.length <= 0) {
-                const foundInterceptedRequest = (_a = this.config) === null || _a === void 0 ? void 0 : _a.interceptedRequests.find((item) => {
-                    return this.capturedRequests.some((url) => new RegExp(item.url).test(url));
-                });
-                if (foundInterceptedRequest) {
-                    this.scrapedData.push([this.page.url(), foundInterceptedRequest.name, "OK"]);
-                    this.spinner.start(`${this.page.url(), foundInterceptedRequest.name, "OK"}`);
-                }
-                this.capturedRequests = [];
-            }
-            this.capturedRequests.push(request.url());
-            if ((_c = (_b = this.config) === null || _b === void 0 ? void 0 : _b.block_request) === null || _c === void 0 ? void 0 : _c.includes(request.url())) {
+            var _a, _b;
+            if ((_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.block_request) === null || _b === void 0 ? void 0 : _b.includes(request.url())) {
                 request.abort();
             }
             else {
@@ -100,7 +88,7 @@ class Scrapper {
         for (let i = 0; i < scriptsNames.length; i++) {
             const script = this.config.scripts[scriptsNames[i]];
             const result = await script(this.page, scriptsNames[i]);
-            this.spinner.text += ` | ${chalk_1.default.blue.bold(result.checkName)}:${chalk_1.default[result.result ? "green" : "red"].bold(result.result)}`;
+            this.spinner.text += ` | ${chalk_1.default.blue.bold(result.checkName)}:${chalk_1.default[result.result === "OK" ? "green" : "red"].bold(result.result)}`;
             this.scrapedData.push([url, result.checkName, result.result, result.data]);
             (_a = this.csvWriter) === null || _a === void 0 ? void 0 : _a.writeRecords([[url, result.checkName, result.result, result.data]]);
         }
@@ -161,7 +149,7 @@ class Scrapper {
         this.browser.close();
     }
     async crawl(url) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         if (!url || this.visitedSet.has(url))
             return;
         this.spinner.text = `${chalk_1.default.bgMagenta.bold(` ${"Navigating"} `)} ${url}`;
@@ -188,15 +176,14 @@ class Scrapper {
                         ((_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.exclude_hosts) === null || _b === void 0 ? void 0 : _b.includes(new URL(urlString).host)) ||
                         ((_d = (_c = this.config) === null || _c === void 0 ? void 0 : _c.exclude_text) === null || _d === void 0 ? void 0 : _d.some((substring) => urlString.includes(substring))))
                         continue;
-                    if (
-                    //TODO: FIX THIS
-                    urlString.includes("wizink") ||
+                    if ((((_e = this.config) === null || _e === void 0 ? void 0 : _e.include_domains) && ((_f = this.config) === null || _f === void 0 ? void 0 : _f.include_domains.test(new URL(urlString, url).host))) || //Include multidomain
                         urlString.startsWith("/") ||
                         urlString.startsWith(url)) {
-                        const generatedURL = new URL(urlString, url).href.split("#")[0];
-                        this.urlsSet.add(generatedURL);
-                        if (!this.visitedSet.has(generatedURL)) {
-                            this.urlQueue.enqueue(generatedURL);
+                        const generatedURL = new URL(urlString, url);
+                        const finalURL = generatedURL.protocol + "//" + generatedURL.host + generatedURL.pathname; //TODO: FIX THIS allow to chosing if user want params or not
+                        this.urlsSet.add(finalURL);
+                        if (!this.visitedSet.has(finalURL)) {
+                            this.urlQueue.enqueue(finalURL);
                         }
                     }
                 }

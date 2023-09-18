@@ -6,6 +6,8 @@ module.exports = {
     exclude_text: [],
     //Block request urls
     block_request: [],
+    //Multidomain
+    include_domains: new RegExp(),
     //Intercept requests checks
     interceptedRequests: [
         {
